@@ -46,20 +46,19 @@ pip install loguru
 # LINK : 
 
 
--> https://dataimpulse.com/?aff=67141 
--> https://proxyscrape.com/?ref=n2jimgj
+```` https://dataimpulse.com/?aff=67141 ````
+```` https://proxyscrape.com/?ref=n2jimgj ````
 
 
 
 * Bagi yang belum ada proxy kalian bisa membelinya disini
-~> Kalian bisa bayar menggunakan Crypto/Doku Qris  
+* kalian bisa bayar menggunakan Crypto/Doku Qris
 
 
 # NEXT : 
 
 Buka Proxy Kalian Setting Quantity  
-Tergantung kebutuhan kalian masing-masing, 
-Untuk Region rekomendasi saya Pilih
+Tergantung kebutuhan kalian masing-masing, Untuk Region rekomendasi saya Pilih
 salah satu Saja dan 
 Country Biarkan Random saja. 
 
