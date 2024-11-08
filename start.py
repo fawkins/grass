@@ -7,7 +7,7 @@ import uuid
 from loguru import logger
 from fake_useragent import UserAgent
 import aiohttp
-from aiohttp_socks import Socks5Connector
+from aiohttp_socks import SocksConnector  # Mengganti Socks5Connector dengan SocksConnector
 
 ascii_art = r"""
 .·:'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''':·.
@@ -61,7 +61,7 @@ async def connect_to_websocket(proxy, user_id):
             ssl_context.verify_mode = ssl.CERT_NONE
             
             uri = "wss://proxy.wynd.network:4650/"
-            connector = Socks5Connector.from_url(proxy)
+            connector = SocksConnector.from_url(proxy)  # Menggunakan SocksConnector
 
             async with aiohttp.ClientSession(connector=connector) as session:
                 async with session.ws_connect(uri, ssl=ssl_context, headers=custom_headers) as websocket:
