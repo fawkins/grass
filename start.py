@@ -11,7 +11,7 @@ from loguru import logger
 from fake_useragent import UserAgent
 import aiohttp
 
-# ASCII Art untuk ditampilkan
+
 ascii_art = """
 .·:'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''':·.
 : :  __  __                                                                : :
@@ -47,10 +47,10 @@ ascii_art = """
 '·:........................................................................:·'
 """
 
-# Tampilkan ASCII Art
+
 print(ascii_art)
 
-# Inisialisasi user agent untuk mengambil user-agent acak
+
 user_agent = UserAgent()
 
 async def connect_to_websocket(proxy, user_id):
