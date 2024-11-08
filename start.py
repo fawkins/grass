@@ -7,9 +7,9 @@ import uuid
 from loguru import logger
 from fake_useragent import UserAgent
 import aiohttp
-from aiohttp_socks import Socks5Connector  # Import untuk menggunakan SOCKS5 proxy
+from aiohttp_socks import Socks5Connector
 
-ascii_art = """
+ascii_art = r"""
 .·:'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''':·.
 : :  __  __                                                                : :
 : : /  |/  |                                                               : :
@@ -50,7 +50,7 @@ user_agent = UserAgent()
 
 async def connect_to_websocket(proxy, user_id):
     device_id = str(uuid.uuid4())
-    logger.info(f"Device ID generated: {device_id}")
+    logger.info(f"Device ID generated: {device_id} for proxy {proxy}")
     
     while True:
         try:
@@ -61,20 +61,15 @@ async def connect_to_websocket(proxy, user_id):
             ssl_context.verify_mode = ssl.CERT_NONE
             
             uri = "wss://proxy.wynd.network:4650/"
-            
-            # Membuat SOCKS5 Connector dengan aiohttp_socks
-            connector = Socks5Connector.from_url(proxy)  # Membuat koneksi SOCKS5
-            
-            # Menggunakan aiohttp ClientSession dengan SOCKS5
+            connector = Socks5Connector.from_url(proxy)
+
             async with aiohttp.ClientSession(connector=connector) as session:
                 async with session.ws_connect(uri, ssl=ssl_context, headers=custom_headers) as websocket:
                     asyncio.create_task(send_periodic_ping(websocket))
-
                     while True:
                         response = await websocket.receive()
                         if response.type == aiohttp.WSMsgType.TEXT:
                             await handle_server_message(response.data, websocket, device_id, user_id, proxy)
-
         except Exception as e:
             logger.error(f"Connection error with proxy {proxy}: {e}")
             await handle_proxy_error(proxy)
@@ -95,7 +90,6 @@ async def send_periodic_ping(websocket):
 async def handle_server_message(response, websocket, device_id, user_id, proxy):
     message = json.loads(response)
     logger.info(f"Received message: {message}")
-
     if message.get("action") == "AUTH":
         await send_auth_response(websocket, message, device_id, user_id)
     elif message.get("action") == "PONG":
@@ -129,18 +123,15 @@ async def update_proxy_status(proxy):
     logger.info(f"Proxy list updated with: {proxy}")
 
 async def handle_proxy_error(proxy):
-    if "Empty connect reply" in str(proxy):
-        await remove_proxy_from_file("user_proxy.txt", proxy[len("socks5://"):])
+    logger.info(f"Proxy error encountered, marking {proxy} as invalid.")
+    await remove_proxy_from_file("user_proxy.txt", proxy[len("socks5://"):])
 
 async def remove_proxy_from_file(file_path, proxy):
-    logger.info(f"Removing proxy {proxy} from {file_path}")
     if proxy.startswith("socks5://"):
-        proxy = proxy[len("socks5://"):] 
-
+        proxy = proxy[len("socks5://"):]
     try:
         with open(file_path, "r") as file:
             proxies = file.readlines()
-
         with open(file_path, "w") as file:
             for p in proxies:
                 if p.strip() != proxy:
@@ -149,20 +140,16 @@ async def remove_proxy_from_file(file_path, proxy):
     except Exception as e:
         logger.error(f"Error removing {proxy} from {file_path}: {e}")
 
-
 async def main():
     with open("user_id.txt", "r") as file:
         user_id = file.read().strip()
-
     with open("user_proxy.txt", "r") as file:
         proxies = [
             f'socks5://{line.strip()}' if not line.startswith("socks5://") else line.strip()
             for line in file
         ]
-
     connection_tasks = [asyncio.create_task(connect_to_websocket(proxy, user_id)) for proxy in proxies]
     await asyncio.gather(*connection_tasks)
 
-# Jalankan event loop utama jika skrip dijalankan
 if __name__ == "__main__":
     asyncio.run(main())
