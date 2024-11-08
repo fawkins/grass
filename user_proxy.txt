@@ -1,0 +1,2 @@
+Masukan port proxy kalian 
+format username:pasword@ip 
