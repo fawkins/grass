@@ -1,4 +1,15 @@
-# Fawkins
+import asyncio
+import random
+import ssl
+import json
+import time
+import uuid
+import websockets
+from loguru import logger
+from fake_useragent import UserAgent
+import aiohttp
+
+# ASCII Art untuk ditampilkan
 ascii_art = """
 .·:'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''':·.
 : :  __  __                                                                : :
@@ -34,20 +45,8 @@ ascii_art = """
 '·:........................................................................:·'
 """
 
-# 
+# Tampilkan ASCII Art
 print(ascii_art)
-
-# Project: Proxy Connector
-import asyncio
-import random
-import ssl
-import json
-import time
-import uuid
-import websockets
-from loguru import logger
-from fake_useragent import UserAgent
-import aiohttp
 
 # Inisialisasi user agent untuk mengambil user-agent acak
 user_agent = UserAgent()
@@ -149,6 +148,7 @@ async def remove_proxy_from_file(file_path, proxy):
     except Exception as e:
         logger.error(f"Error removing {proxy} from {file_path}: {e}")
 
+# Fungsi utama untuk menjalankan program
 async def main():
     with open("user_id.txt", "r") as file:
         user_id = file.read().strip()
@@ -162,19 +162,6 @@ async def main():
     connection_tasks = [asyncio.create_task(connect_to_websocket(proxy, user_id)) for proxy in proxies]
     await asyncio.gather(*connection_tasks)
 
-if __name__ == "__main__":
-    asyncio.run(main())async def main():
-    with open("user_id.txt", "r") as file:
-        user_id = file.read().strip()
-
-    with open("user_proxy.txt", "r") as file:
-        proxies = [
-            f'socks5://{line.strip()}' if not line.startswith("socks5://") else line.strip()
-            for line in file
-        ]
-
-    connection_tasks = [asyncio.create_task(connect_to_websocket(proxy, user_id)) for proxy in proxies]
-    await asyncio.gather(*connection_tasks)
-
+# Jalankan event loop utama jika skrip dijalankan
 if __name__ == "__main__":
     asyncio.run(main())
