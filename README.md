@@ -28,7 +28,7 @@ pkg install python-pip
 # Jalankan Perintah  : 
 
 ```
-git clone https://github.com/QanitaJulyanti/grasstermux.git
+git clone https://github.com/fawkins/grass.git
 ```
 ```
 pip install fake_useragent
