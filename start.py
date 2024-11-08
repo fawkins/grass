@@ -1,16 +1,13 @@
-#Fawkins
-
 import asyncio
 import random
 import ssl
 import json
 import time
 import uuid
-import websockets
 from loguru import logger
 from fake_useragent import UserAgent
 import aiohttp
-
+from aiohttp_socks import Socks5Connector  # Import untuk menggunakan SOCKS5 proxy
 
 ascii_art = """
 .·:'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''':·.
@@ -47,9 +44,7 @@ ascii_art = """
 '·:........................................................................:·'
 """
 
-
 print(ascii_art)
-
 
 user_agent = UserAgent()
 
@@ -67,9 +62,12 @@ async def connect_to_websocket(proxy, user_id):
             
             uri = "wss://proxy.wynd.network:4650/"
             
-            # Menggunakan proxy dengan aiohttp ClientSession
-            async with aiohttp.ClientSession() as session:
-                async with session.ws_connect(uri, ssl=ssl_context, proxy=proxy, headers=custom_headers) as websocket:
+            # Membuat SOCKS5 Connector dengan aiohttp_socks
+            connector = Socks5Connector.from_url(proxy)  # Membuat koneksi SOCKS5
+            
+            # Menggunakan aiohttp ClientSession dengan SOCKS5
+            async with aiohttp.ClientSession(connector=connector) as session:
+                async with session.ws_connect(uri, ssl=ssl_context, headers=custom_headers) as websocket:
                     asyncio.create_task(send_periodic_ping(websocket))
 
                     while True:
@@ -127,17 +125,17 @@ async def send_pong_response(websocket, message):
 
 async def update_proxy_status(proxy):
     with open("active_proxies.txt", "a") as file:
-        file.write(proxy[len("https://"):].strip() + "\n")
+        file.write(proxy[len("socks5://"):].strip() + "\n")
     logger.info(f"Proxy list updated with: {proxy}")
 
 async def handle_proxy_error(proxy):
     if "Empty connect reply" in str(proxy):
-        await remove_proxy_from_file("user_proxy.txt", proxy[len("https://"):])
+        await remove_proxy_from_file("user_proxy.txt", proxy[len("socks5://"):])
 
 async def remove_proxy_from_file(file_path, proxy):
     logger.info(f"Removing proxy {proxy} from {file_path}")
-    if proxy.startswith("https://"):
-        proxy = proxy[len("https://"):] 
+    if proxy.startswith("socks5://"):
+        proxy = proxy[len("socks5://"):] 
 
     try:
         with open(file_path, "r") as file:
@@ -151,14 +149,14 @@ async def remove_proxy_from_file(file_path, proxy):
     except Exception as e:
         logger.error(f"Error removing {proxy} from {file_path}: {e}")
 
-# Fungsi utama untuk menjalankan program
+
 async def main():
     with open("user_id.txt", "r") as file:
         user_id = file.read().strip()
 
     with open("user_proxy.txt", "r") as file:
         proxies = [
-            f'http://{line.strip()}' if not line.startswith("http://") else line.strip()
+            f'socks5://{line.strip()}' if not line.startswith("socks5://") else line.strip()
             for line in file
         ]
 
