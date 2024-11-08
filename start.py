@@ -1,3 +1,5 @@
+#Fawkins
+
 import asyncio
 import random
 import ssl
@@ -65,6 +67,7 @@ async def connect_to_websocket(proxy, user_id):
             
             uri = "wss://proxy.wynd.network:4650/"
             
+            # Menggunakan proxy dengan aiohttp ClientSession
             async with aiohttp.ClientSession() as session:
                 async with session.ws_connect(uri, ssl=ssl_context, proxy=proxy, headers=custom_headers) as websocket:
                     asyncio.create_task(send_periodic_ping(websocket))
@@ -134,7 +137,7 @@ async def handle_proxy_error(proxy):
 async def remove_proxy_from_file(file_path, proxy):
     logger.info(f"Removing proxy {proxy} from {file_path}")
     if proxy.startswith("https://"):
-        proxy = proxy[len("https://"):]
+        proxy = proxy[len("https://"):] 
 
     try:
         with open(file_path, "r") as file:
@@ -155,7 +158,7 @@ async def main():
 
     with open("user_proxy.txt", "r") as file:
         proxies = [
-            f'https://{line.strip()}' if not line.startswith("https://") else line.strip()
+            f'http://{line.strip()}' if not line.startswith("http://") else line.strip()
             for line in file
         ]
 
