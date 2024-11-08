@@ -57,9 +57,10 @@ pip install loguru
 
 # NEXT : 
 
-Buka Proxy Kalian Setting Quantity 10/30 
+Buka Proxy Kalian Setting Quantity  
 Tergantung kebutuhan kalian masing-masing, 
-Untuk Region rekomendasi Pilih salah satu Saja dan 
+Untuk Region rekomendasi saya Pilih
+salah satu Saja dan 
 Country Biarkan Random saja. 
 
 
@@ -96,8 +97,8 @@ Maka Kalian Akan Mendapatkan Usser Id Kalian
 Copy Lalu Paste kedalam Terminal Program 
 
 * DONE ✅  
-jika sudah kalian bisa Tinggal Ngopi ☕️ Tanpa takut 
-Ke Close Sendiri .
+jika sudah kalian bisa Tinggal, Tanpa takut 
+close Sendiri .
 
 * Mining Epoch Bakal Terus Berjalan 
 Selama Kalian tidak mengclose Terminal 
