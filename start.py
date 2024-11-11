@@ -7,7 +7,9 @@ import uuid
 from loguru import logger
 from fake_useragent import UserAgent
 import aiohttp
-from aiohttp_socks import SocksConnector  # Mengganti Socks5Connector dengan SocksConnector
+from aiohttp_socks import SocksConnector  
+
+# Menggunakan SocksConnector
 
 ascii_art = r"""
 .·:'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''':·.
@@ -64,12 +66,16 @@ async def connect_to_websocket(proxy, user_id):
             connector = SocksConnector.from_url(proxy)  # Menggunakan SocksConnector
 
             async with aiohttp.ClientSession(connector=connector) as session:
-                async with session.ws_connect(uri, ssl=ssl_context, headers=custom_headers) as websocket:
+                async with session.ws_connect(uri, ssl=ssl_context, headers=custom_headers, timeout=aiohttp.ClientTimeout(total=60)) as websocket:
                     asyncio.create_task(send_periodic_ping(websocket))
                     while True:
                         response = await websocket.receive()
                         if response.type == aiohttp.WSMsgType.TEXT:
                             await handle_server_message(response.data, websocket, device_id, user_id, proxy)
+        except aiohttp.ClientError as e:
+            logger.error(f"Client error with proxy {proxy}: {e}")
+            await handle_proxy_error(proxy)
+            await asyncio.sleep(5)
         except Exception as e:
             logger.error(f"Connection error with proxy {proxy}: {e}")
             await handle_proxy_error(proxy)
@@ -88,13 +94,16 @@ async def send_periodic_ping(websocket):
         await asyncio.sleep(20)
 
 async def handle_server_message(response, websocket, device_id, user_id, proxy):
-    message = json.loads(response)
-    logger.info(f"Received message: {message}")
-    if message.get("action") == "AUTH":
-        await send_auth_response(websocket, message, device_id, user_id)
-    elif message.get("action") == "PONG":
-        await send_pong_response(websocket, message)
-        await update_proxy_status(proxy)
+    try:
+        message = json.loads(response)
+        logger.info(f"Received message: {message}")
+        if message.get("action") == "AUTH":
+            await send_auth_response(websocket, message, device_id, user_id)
+        elif message.get("action") == "PONG":
+            await send_pong_response(websocket, message)
+            await update_proxy_status(proxy)
+    except json.JSONDecodeError:
+        logger.error(f"Failed to decode message: {response}")
 
 async def send_auth_response(websocket, message, device_id, user_id):
     auth_response = {
@@ -128,7 +137,7 @@ async def handle_proxy_error(proxy):
 
 async def remove_proxy_from_file(file_path, proxy):
     if proxy.startswith("socks5://"):
-        proxy = proxy[len("socks5://"):]
+        proxy = proxy[len("socks5://"):].strip()
     try:
         with open(file_path, "r") as file:
             proxies = file.readlines()
