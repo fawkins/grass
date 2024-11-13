@@ -76,7 +76,7 @@ nano user_proxy.txt
 ```
 
 * Copy paste ID dan Juga proxy kalian kedalam sini 
-~> Jika sudah Save / CTRL + X + Y + ENTER
+~> Jika sudah Save / ````CTRL + X + Y + ENTER````
 
  
 
