@@ -105,4 +105,4 @@ Selama Kalian tidak mengclose Terminal
 
 
 
-* DYOR
+* ```` DYOR ````
