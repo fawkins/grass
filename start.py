@@ -9,8 +9,6 @@ from fake_useragent import UserAgent
 import aiohttp
 from aiohttp_socks import SocksConnector  
 
-# Menggunakan SocksConnector
-
 ascii_art = r"""
 .·:'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''':·.
 : :  __  __                                                                : :
@@ -50,36 +48,37 @@ print(ascii_art)
 
 user_agent = UserAgent()
 
-async def connect_to_websocket(proxy, user_id):
+async def connect_to_websocket(proxy, user_id, semaphore):
     device_id = str(uuid.uuid4())
     logger.info(f"Device ID generated: {device_id} for proxy {proxy}")
     
-    while True:
-        try:
-            await asyncio.sleep(random.uniform(0.1, 1.0))
-            custom_headers = {"User-Agent": user_agent.random}
-            ssl_context = ssl.create_default_context()
-            ssl_context.check_hostname = False
-            ssl_context.verify_mode = ssl.CERT_NONE
-            
-            uri = "wss://proxy.wynd.network:4650/"
-            connector = SocksConnector.from_url(proxy)  # Menggunakan SocksConnector
+    async with semaphore:
+        while True:
+            try:
+                await asyncio.sleep(random.uniform(0.1, 1.0))
+                custom_headers = {"User-Agent": user_agent.random}
+                ssl_context = ssl.create_default_context()
+                ssl_context.check_hostname = False
+                ssl_context.verify_mode = ssl.CERT_NONE
+                
+                uri = "wss://proxy.wynd.network:4650/"
+                connector = SocksConnector.from_url(proxy)  # Menggunakan SocksConnector
 
-            async with aiohttp.ClientSession(connector=connector) as session:
-                async with session.ws_connect(uri, ssl=ssl_context, headers=custom_headers, timeout=aiohttp.ClientTimeout(total=60)) as websocket:
-                    asyncio.create_task(send_periodic_ping(websocket))
-                    while True:
-                        response = await websocket.receive()
-                        if response.type == aiohttp.WSMsgType.TEXT:
-                            await handle_server_message(response.data, websocket, device_id, user_id, proxy)
-        except aiohttp.ClientError as e:
-            logger.error(f"Client error with proxy {proxy}: {e}")
-            await handle_proxy_error(proxy)
-            await asyncio.sleep(5)
-        except Exception as e:
-            logger.error(f"Connection error with proxy {proxy}: {e}")
-            await handle_proxy_error(proxy)
-            await asyncio.sleep(5)
+                async with aiohttp.ClientSession(connector=connector) as session:
+                    async with session.ws_connect(uri, ssl=ssl_context, headers=custom_headers, timeout=aiohttp.ClientTimeout(total=60)) as websocket:
+                        asyncio.create_task(send_periodic_ping(websocket))
+                        while True:
+                            response = await websocket.receive()
+                            if response.type == aiohttp.WSMsgType.TEXT:
+                                await handle_server_message(response.data, websocket, device_id, user_id, proxy)
+            except aiohttp.ClientError as e:
+                logger.error(f"Client error with proxy {proxy}: {e}")
+                await handle_proxy_error(proxy)
+                await asyncio.sleep(5)
+            except Exception as e:
+                logger.error(f"Connection error with proxy {proxy}: {e}")
+                await handle_proxy_error(proxy)
+                await asyncio.sleep(5)
 
 async def send_periodic_ping(websocket):
     while True:
@@ -157,7 +156,11 @@ async def main():
             f'socks5://{line.strip()}' if not line.startswith("socks5://") else line.strip()
             for line in file
         ]
-    connection_tasks = [asyncio.create_task(connect_to_websocket(proxy, user_id)) for proxy in proxies]
+    
+    max_connections = 30 
+    semaphore = asyncio.Semaphore(max_connections)
+
+    connection_tasks = [asyncio.create_task(connect_to_websocket(proxy, user_id, semaphore)) for proxy in proxies]
     await asyncio.gather(*connection_tasks)
 
 if __name__ == "__main__":
