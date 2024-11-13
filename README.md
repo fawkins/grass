@@ -1,4 +1,4 @@
-# MINING GRASS 
+# Mining GRASS ⚙️
 
 
 
@@ -25,7 +25,7 @@ pkg install python-pip
 * Sesudah terinstall 
 
 
-# Jalankan Perintah  : 
+#▶️ Jalankan Perintah : 
 
 ```
 git clone https://github.com/fawkins/grass.git
@@ -43,7 +43,7 @@ pip install loguru
 
 
 
-# LINK : 
+#⛓️ LINK : 
 
 
 ```` https://dataimpulse.com/?aff=67141 ````
@@ -55,7 +55,7 @@ pip install loguru
 * kalian bisa bayar menggunakan Crypto/Doku Qris
 
 
-# NEXT : 
+#⏭️ NEXT : 
 
 Buka Proxy Kalian Setting Quantity  
 Tergantung kebutuhan kalian masing-masing, Untuk Region rekomendasi saya Pilih
@@ -66,7 +66,7 @@ Country Biarkan Random saja.
 
 * Setelah itu buka Termux kembali 
 
-# Jalankan : 
+#▶️ Jalankan : 
 
 ```
 nano user_id.txt
@@ -80,7 +80,7 @@ nano user_proxy.txt
 
  
 
-# Jalankan Perintah
+#▶️ Jalankan Perintah
 
 
 ```
@@ -88,7 +88,7 @@ python start.py
 ```
 
 
-# Masukan Usser ID Kalian : 
+#⚙️ Masukan Usser ID Kalian : 
 
 * Pergi Ke Web Grass / F12 Untuk Inspect Element, klik console
 Tulis localStorage.getItem ('userId') Atau  localStorage.userId,
